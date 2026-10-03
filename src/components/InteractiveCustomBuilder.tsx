@@ -67,7 +67,7 @@ const PRODUCTS: CustomProductOption[] = [
   {
     id: 'family-frames',
     name: 'Family Photo Frames',
-    description: 'Classic wooden memory frames tailored for living room family walls.',
+    description: 'Solid wooden border & real front glass. Dual wall hooks & tabletop stand included.',
     basePrice: 349,
     image: imgFamilyGalleryWall,
     isFramed: true,
@@ -76,7 +76,7 @@ const PRODUCTS: CustomProductOption[] = [
   {
     id: 'wedding-frames',
     name: 'Wedding Photo Frames',
-    description: 'Elegant handcrafted wooden gallery frames for wedding memories & milestones.',
+    description: 'Solid wooden border & real front glass. Dual wall hooks & tabletop stand included.',
     basePrice: 349,
     image: imgWeddingFramesWall,
     isFramed: true,
@@ -765,7 +765,11 @@ Please confirm my custom order!`;
                 <div className="relative z-10 bg-[#111111]/80 backdrop-blur-md p-2.5 rounded-xl border border-gray-800 text-[11px] text-gray-300 text-center">
                   <span className="text-[#E2CD9F] font-bold">{selectedProduct.name}</span>
                   <span className="text-gray-400 block text-[10px]">
-                    {!selectedProduct.isFramed ? '5mm Premium Frameless MDF Board' : `${frameColor} Wooden Border`}
+                    {selectedProduct.id === 'string-lights'
+                      ? 'Lightweight Photo Cards (No MDF Board) + Warm LED Fairy String'
+                      : !selectedProduct.isFramed
+                      ? '5mm Premium Frameless MDF Board'
+                      : `${frameColor} Solid Wooden Border & Real Front Glass`}
                   </span>
                 </div>
               </div>

@@ -434,34 +434,107 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ onBack }) => {
                   {lightboxItem.description}
                 </p>
 
-                {/* Product Specifications for 8x12 MDF Frameless Photo Tile */}
-                <div className="space-y-2.5 bg-[#111111] p-4 border border-gray-800">
-                  <div className="text-[10px] uppercase tracking-wider text-[#C8A96A] font-bold">
-                    Product Specifications:
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] text-gray-400 block">Size:</span>
-                      <span className="font-mono text-white font-semibold">8×12 Inches (20×30 cm)</span>
+                {/* Product Specifications */}
+                {(() => {
+                  const isLightsItem = lightboxItem.categorySlug === 'lights' || lightboxItem.category === 'Photo Clip Lights';
+                  const isWeddingItem = lightboxItem.categorySlug === 'wedding' || lightboxItem.category === 'Wedding';
+                  const isFamilyItem = lightboxItem.categorySlug === 'family' || lightboxItem.category === 'Family';
+                  const isTraditionalFrameItem = isWeddingItem || isFamilyItem;
+
+                  if (isLightsItem) {
+                    return (
+                      <div className="space-y-2.5 bg-[#111111] p-4 border border-gray-800">
+                        <div className="text-[10px] uppercase tracking-wider text-[#C8A96A] font-bold">
+                          Product Specifications:
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Category:</span>
+                            <span className="text-white font-medium">Photo Clip String Lights</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Material:</span>
+                            <span className="text-[#C8A96A] font-semibold">Lightweight Photo Cards (No MDF Board)</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Lighting:</span>
+                            <span className="text-white font-medium">Warm Copper Fairy LEDs</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Includes:</span>
+                            <span className="text-white font-medium">12 Custom Photo Cards + String</span>
+                          </div>
+                        </div>
+                        <div className="pt-2 border-t border-gray-800/80 flex items-center gap-2 text-[11px] text-[#E2CD9F]">
+                          <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
+                          <span>Includes 12 Lightweight Photo Cards (4×4 In) + Fairy Lights with Clips</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (isTraditionalFrameItem) {
+                    return (
+                      <div className="space-y-2.5 bg-[#111111] p-4 border border-gray-800">
+                        <div className="text-[10px] uppercase tracking-wider text-[#C8A96A] font-bold">
+                          Product Specifications:
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Frame Type:</span>
+                            <span className="text-white font-medium">Traditional Photo Frame</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Material:</span>
+                            <span className="text-[#C8A96A] font-semibold">Solid Wooden Border &amp; Real Front Glass</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Display Option:</span>
+                            <span className="text-white font-medium">Wall Hanging &amp; Tabletop Stand</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block">Print Quality:</span>
+                            <span className="text-white font-medium">Ultra-HD Photo Print Included</span>
+                          </div>
+                        </div>
+                        <div className="pt-2 border-t border-gray-800/80 flex items-center gap-2 text-[11px] text-[#E2CD9F]">
+                          <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
+                          <span>Solid Wooden Frame + Real Front Glass (Wall Hanging &amp; Tabletop Ready)</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-2.5 bg-[#111111] p-4 border border-gray-800">
+                      <div className="text-[10px] uppercase tracking-wider text-[#C8A96A] font-bold">
+                        Product Specifications:
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="space-y-0.5">
+                          <span className="text-[10px] text-gray-400 block">Size:</span>
+                          <span className="font-mono text-white font-semibold">8×12 Inches (20×30 cm)</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <span className="text-[10px] text-gray-400 block">Type:</span>
+                          <span className="text-white font-medium">Frameless MDF Wall Tile</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <span className="text-[10px] text-gray-400 block">Material:</span>
+                          <span className="text-white font-medium">5mm High-Density MDF</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <span className="text-[10px] text-gray-400 block">Finish:</span>
+                          <span className="text-white font-medium">UV Matte Laminated</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-gray-800/80 flex items-center gap-2 text-[11px] text-[#E2CD9F]">
+                        <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
+                        <span>Damage-Free Re-stickable Tape Included (Zero Nails / Zero Wall Damage)</span>
+                      </div>
                     </div>
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] text-gray-400 block">Type:</span>
-                      <span className="text-white font-medium">Frameless MDF Wall Tile</span>
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] text-gray-400 block">Material:</span>
-                      <span className="text-white font-medium">5mm High-Density MDF</span>
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] text-gray-400 block">Finish:</span>
-                      <span className="text-white font-medium">UV Matte Laminated</span>
-                    </div>
-                  </div>
-                  <div className="pt-2 border-t border-gray-800/80 flex items-center gap-2 text-[11px] text-[#E2CD9F]">
-                    <CheckCircle2 className="w-4 h-4 text-[#25D366] shrink-0" />
-                    <span>Damage-Free Re-stickable Tape Included (Zero Nails / Zero Wall Damage)</span>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Primary WhatsApp Action Button */}

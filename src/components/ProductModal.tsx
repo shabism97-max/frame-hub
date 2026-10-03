@@ -144,7 +144,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#C8A96A]" />
                   {isPhotoClipLights ? (
-                    <span><strong>Material:</strong> Lightweight Photo Cards (No MDF Board)</span>
+                    <span><strong>Material:</strong> Lightweight Photo Cards (No MDF Board) + Fairy String</span>
                   ) : isTraditionalGlassFrame ? (
                     <span><strong>Frame Build:</strong> Solid Wooden Border &amp; Real Front Glass</span>
                   ) : (
