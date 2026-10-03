@@ -29,11 +29,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const freeShippingThreshold = 2999;
+  const isFreeDelivery = subtotal >= freeShippingThreshold;
+  const deliveryFee = cart.length === 0 ? 0 : isFreeDelivery ? 0 : 300;
+  const finalTotal = subtotal + deliveryFee;
   const progressPercent = Math.min((subtotal / freeShippingThreshold) * 100, 100);
   const amountNeeded = Math.max(freeShippingThreshold - subtotal, 0);
 
   const handleCheckoutWhatsApp = () => {
-    const url = createCartWhatsAppUrl(cart, subtotal, { name, city, address });
+    const url = createCartWhatsAppUrl(cart, subtotal, deliveryFee, finalTotal, { name, city, address });
     window.open(url, '_blank');
   };
 
@@ -164,14 +167,33 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className="bg-black/50 border border-gray-700 rounded p-2 text-xs text-white focus:outline-none"
                 />
               </div>
+              <input
+                type="text"
+                placeholder="Delivery Address (Optional)"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full bg-black/50 border border-gray-700 rounded p-2 text-xs text-white focus:outline-none"
+              />
             </div>
 
-            {/* Subtotal */}
-            <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-800">
-              <span className="text-gray-300 font-medium">Subtotal:</span>
-              <span className="font-bold text-xl text-[#C8A96A]">
-                Rs. {subtotal.toLocaleString()}
-              </span>
+            {/* Price Breakdown */}
+            <div className="space-y-1.5 pt-2 border-t border-gray-800 text-xs">
+              <div className="flex items-center justify-between text-gray-300">
+                <span>Subtotal:</span>
+                <span className="font-semibold text-white">Rs. {subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between text-gray-300">
+                <span>Standard Delivery:</span>
+                <span className={isFreeDelivery ? 'text-green-400 font-bold' : 'text-gray-300 font-semibold'}>
+                  {isFreeDelivery ? 'FREE (Above Rs. 2,999)' : `Rs. ${deliveryFee.toLocaleString()}`}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-700/60">
+                <span className="text-white font-bold">Final Total:</span>
+                <span className="font-bold text-xl text-[#C8A96A]">
+                  Rs. {finalTotal.toLocaleString()}
+                </span>
+              </div>
             </div>
 
             {/* WhatsApp Checkout CTA */}

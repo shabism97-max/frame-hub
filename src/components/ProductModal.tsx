@@ -21,7 +21,15 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [selectedImage, setSelectedImage] = useState(product.image);
   const [customNote, setCustomNote] = useState('');
 
-  const allImages = [product.image, ...(product.galleryImages || [])];
+  const isPhotoClipLights = product.id === 'photo-clip-lights-12' || product.categorySlug === 'photo-clip-lights' || product.name.toLowerCase().includes('photo clip');
+  const isTraditionalGlassFrame =
+    product.id === 'family-frames-collection' ||
+    product.id === 'wedding-frames-collection' ||
+    product.categorySlug === 'family-frames' ||
+    product.categorySlug === 'wedding-frames' ||
+    product.name.toLowerCase().includes('family frame') ||
+    product.name.toLowerCase().includes('wedding frame');
+  const allImages = Array.from(new Set([product.image, ...(product.galleryImages || [])])).filter(Boolean);
 
   const handleAdd = () => {
     onAddToCart(product, quantity, customNote);
@@ -64,6 +72,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               {product.badge && (
                 <span className="absolute top-3 left-3 z-10 bg-[#C8A96A] text-[#111111] text-[10px] font-bold uppercase px-2.5 py-1 rounded shadow">
                   {product.badge}
+                </span>
+              )}
+              {isPhotoClipLights && (
+                <span className="absolute bottom-3 right-3 z-10 bg-black/75 text-gray-300 text-[10px] font-semibold px-2.5 py-1 rounded backdrop-blur-xs border border-white/10 shadow">
+                  Sample Image
                 </span>
               )}
             </div>
@@ -130,8 +143,20 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#C8A96A]" />
-                  <span><strong>Backing:</strong> Premium 5mm High-Density MDF Board</span>
+                  {isPhotoClipLights ? (
+                    <span><strong>Material:</strong> Lightweight Photo Cards (No MDF Board)</span>
+                  ) : isTraditionalGlassFrame ? (
+                    <span><strong>Frame Build:</strong> Solid Wooden Border &amp; Real Front Glass</span>
+                  ) : (
+                    <span><strong>Backing:</strong> Premium 5mm High-Density MDF Board</span>
+                  )}
                 </div>
+                {isTraditionalGlassFrame && (
+                  <div className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-[#C8A96A]" />
+                    <span><strong>Display Option:</strong> Dual Wall Hanging Hooks &amp; Tabletop Stand</span>
+                  </div>
+                )}
               </div>
 
               {/* Custom Note input */}

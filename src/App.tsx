@@ -263,20 +263,6 @@ export default function App() {
         onSelectCategory={handleSelectCategoryFromNav}
       />
 
-      {/* Floating Sticky WhatsApp Quick Action */}
-      <a
-        href={createGeneralWhatsAppUrl()}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-40 bg-[#25D366] hover:bg-[#1faa51] text-white p-3.5 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 flex items-center justify-center group"
-        aria-label="Contact Frame Hub on WhatsApp"
-      >
-        <MessageCircle className="w-7 h-7 fill-current" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-xs font-bold pl-0 group-hover:pl-2">
-          Order on WhatsApp
-        </span>
-      </a>
-
       {/* Scroll to top button */}
       {showScrollTop && (
         <button

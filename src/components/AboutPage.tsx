@@ -50,9 +50,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
     {
       id: 'delivery',
       category: 'Delivery',
-      question: 'What is the delivery timeline across Pakistan?',
+      question: 'What is the delivery timeline and charges across Pakistan?',
       answer:
-        'We deliver nationwide to over 200+ cities in Pakistan. Production takes 1 to 2 business days, and courier delivery typically arrives within 3 to 5 working days in shockproof protective packaging.'
+        'We deliver nationwide to over 200+ cities in Pakistan. Standard delivery is Rs. 300, and delivery is 100% FREE on all orders of Rs. 2,999 or above. Production takes 1 to 2 business days, and courier delivery typically arrives within 3 to 5 working days in shockproof protective packaging.'
     },
     {
       id: 'customization',

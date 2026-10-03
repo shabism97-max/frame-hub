@@ -9,6 +9,11 @@ export function createGeneralWhatsAppUrl(message?: string): string {
 export function createProductWhatsAppUrl(product: Product, quantity = 1, selectedSize?: string, customNote?: string): string {
   const sizeText = selectedSize ? `Size: ${selectedSize}` : `Size: ${product.dimensions}`;
   const noteText = customNote ? `\nCustom Request: ${customNote}` : '';
+  const subtotal = product.price * quantity;
+  const isFreeDelivery = subtotal >= 2999;
+  const deliveryFee = isFreeDelivery ? 0 : 300;
+  const finalTotal = subtotal + deliveryFee;
+  const deliveryText = isFreeDelivery ? 'FREE (Orders of Rs. 2,999 or above)' : 'Rs. 300';
   
   const text = `Hi Frame Hub! I want to order this product:
   
@@ -17,6 +22,10 @@ export function createProductWhatsAppUrl(product: Product, quantity = 1, selecte
 *Quantity:* ${quantity}
 *Set:* ${product.setSize}
 *${sizeText}*${noteText}
+
+*Subtotal:* Rs. ${subtotal.toLocaleString()}
+*Delivery Charges:* ${deliveryText}
+*Final Total:* Rs. ${finalTotal.toLocaleString()}
 
 Please guide me on sending my photos for printing. Thank you!`;
 
@@ -70,8 +79,14 @@ Please guide me on how to send my photos for printing. Thank you!`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
-export function createCartWhatsAppUrl(cart: CartItem[], total: number, customerDetails?: { name: string; city: string; address: string }): string {
-  let itemsList = cart
+export function createCartWhatsAppUrl(
+  cart: CartItem[],
+  subtotal: number,
+  deliveryFee: number,
+  total: number,
+  customerDetails?: { name: string; city: string; address: string }
+): string {
+  const itemsList = cart
     .map(
       (item, idx) =>
         `${idx + 1}. *${item.product.name}* (Qty: ${item.quantity}) - Rs. ${(item.product.price * item.quantity).toLocaleString()}`
@@ -79,18 +94,22 @@ export function createCartWhatsAppUrl(cart: CartItem[], total: number, customerD
     .join('\n');
 
   let customerText = '';
-  if (customerDetails && customerDetails.name) {
+  if (customerDetails && (customerDetails.name || customerDetails.city || customerDetails.address)) {
     customerText = `\n\n*Customer Details:*
-Name: ${customerDetails.name}
-City: ${customerDetails.city}
-Address: ${customerDetails.address}`;
+Name: ${customerDetails.name || 'Not provided'}
+City: ${customerDetails.city || 'Karachi'}
+Address: ${customerDetails.address || 'Not provided'}`;
   }
+
+  const deliveryText = deliveryFee === 0 ? 'FREE (Orders of Rs. 2,999 or above)' : `Rs. ${deliveryFee.toLocaleString()}`;
 
   const text = `Hi Frame Hub! I would like to place an order for the following cart items:
 
 ${itemsList}
 
-*Total Amount:* Rs. ${total.toLocaleString()}${customerText}
+*Subtotal:* Rs. ${subtotal.toLocaleString()}
+*Delivery Charges:* ${deliveryText}
+*Final Total:* Rs. ${total.toLocaleString()}${customerText}
 
 Please confirm my order and let me know how to send photos. Thank you!`;
 

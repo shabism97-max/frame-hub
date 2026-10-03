@@ -15,7 +15,6 @@ import imgMdfTilesDecor from '../assets/images/family/family-003.jpg';
 
 import imgIslamicWallArtSet from '../assets/images/islamic/islamic-001.jpg';
 import imgMotivationalWallArtSet from '../assets/images/motivational/motivational-001.jpg';
-import imgMotivationalDetail from '../assets/images/motivational/motivational-003.jpg';
 
 export const WHATSAPP_NUMBER = '923298373793';
 export const DISPLAY_PHONE = '03298373793';
@@ -143,22 +142,21 @@ export const PRODUCTS: Product[] = [
     name: 'Photo Clip String Lights',
     category: 'Photo Clip String Lights',
     categorySlug: 'photo-clip-lights',
-    price: 700,
+    price: 699,
     originalPrice: 1000,
-    dimensions: '12 Custom Photos Included',
-    setSize: '12 Custom Photos + String Lights',
-    description: 'Warm ambient LED copper fairy string lights with photo clips. Includes 12 custom photo prints of your choice.',
+    dimensions: '4×4 Inches',
+    setSize: '12 Custom Photo Cards + String Lights',
+    description: 'Warm ambient LED copper fairy string lights with photo clips. Includes 12 lightweight custom 4×4 inches photo cards printed with your favorite memories (sample display image shown; send your own photos for printing).',
     features: [
       'Warm LED string lights with photo clips',
-      'Includes 12 custom printed photos',
+      'Includes 12 custom printed 4×4 inches photo cards',
+      'Lightweight photo cards (No MDF board)',
       'Flexible copper wiring for easy mounting',
       'Safe low voltage battery operation',
-      'Creates magical bedroom memory wall'
+      'Sample image shown - send your own photos for printing'
     ],
     image: imgPhotoClipLights,
-    galleryImages: [
-      imgPhotoClipLights
-    ],
+    galleryImages: [],
     popular: false,
     rating: 4.8,
     reviewsCount: 84,
@@ -173,17 +171,16 @@ export const PRODUCTS: Product[] = [
     startingPrice: true,
     dimensions: '4×6 (Rs.349) | 5×7 (Rs.449) | 6×8 (Rs.499) | 8×12 (Rs.650)',
     setSize: 'Available in 4 Sizes',
-    description: 'Timeless custom family photo frames. Choose from 4×6 (Rs.349), 5×7 (Rs.449), 6×8 (Rs.499), or 8×12 (Rs.650).',
+    description: 'Classic handcrafted wooden photo frames featuring a solid wooden border and crystal-clear front glass. A proper traditional frame designed to preserve your precious family memories with lasting elegance. Includes high-resolution photo print and comes ready to hang on the wall or display on any tabletop.',
     features: [
-      '4×6 Inches – Rs. 349',
-      '5×7 Inches – Rs. 449',
-      '6×8 Inches – Rs. 499',
-      '8×12 Inches – Rs. 650',
-      'Solid wooden border with crystal pane protection'
+      'Solid wooden frame border with refined smooth finish',
+      'Crystal-clear real front glass for maximum photo protection',
+      'Ultra-HD archival photo print included with your order',
+      'Sturdy backboard equipped with wall hooks and display stand',
+      'Available in 4 sizes: 4×6 (Rs. 349), 5×7 (Rs. 449), 6×8 (Rs. 499), 8×12 (Rs. 650)'
     ],
     image: imgFamilyGalleryWall,
     galleryImages: [
-      imgFamilyGalleryWall,
       imgShowroomFrames
     ],
     popular: true,
@@ -200,18 +197,16 @@ export const PRODUCTS: Product[] = [
     startingPrice: true,
     dimensions: '4×6 (Rs.349) | 5×7 (Rs.449) | 6×8 (Rs.499) | 8×12 (Rs.650)',
     setSize: 'Available in 4 Sizes',
-    description: 'Royal wedding memory frames with gold embossed accents. Sizes: 4×6 (Rs.349), 5×7 (Rs.449), 6×8 (Rs.499), 8×12 (Rs.650).',
+    description: 'Elegant custom wedding frames featuring a solid wooden border and crystal-clear front glass. A proper traditional frame designed to preserve your special wedding memories with timeless beauty. Includes high-resolution photo print and comes ready to hang on the wall or display on any tabletop.',
     features: [
-      '4×6 Inches – Rs. 349',
-      '5×7 Inches – Rs. 449',
-      '6×8 Inches – Rs. 499',
-      '8×12 Inches – Rs. 650',
-      'Gold foil embroidery and luxury velvet backing'
+      'Solid wooden frame border with refined elegant finish',
+      'Crystal-clear real front glass for maximum photo protection',
+      'Ultra-HD archival photo print included with your order',
+      'Sturdy backboard equipped with wall hooks and display stand',
+      'Available in 4 sizes: 4×6 (Rs. 349), 5×7 (Rs. 449), 6×8 (Rs. 499), 8×12 (Rs. 650)'
     ],
     image: imgWeddingFramesWall,
-    galleryImages: [
-      imgWeddingFramesWall
-    ],
+    galleryImages: [],
     popular: true,
     rating: 4.9,
     reviewsCount: 112,
@@ -263,8 +258,7 @@ export const PRODUCTS: Product[] = [
     ],
     image: imgMotivationalWallArtSet,
     galleryImages: [
-      imgOfficeMotivational,
-      imgMotivationalDetail
+      imgOfficeMotivational
     ],
     popular: true,
     rating: 4.9,
@@ -418,8 +412,8 @@ export const FAQS = [
     a: 'Not at all! Our MDF Photo Tiles come with special damage-free double-sided mounting adhesive strips. They hold strong on standard painted walls and can be easily peeled off or repositioned without leaving marks or pulling paint.'
   },
   {
-    q: 'What is the delivery time across Pakistan?',
-    a: 'Deliveries in Karachi usually take 2 to 3 working days. Deliveries to Lahore, Islamabad, Rawalpindi, and other major Pakistani cities take 3 to 5 working days.'
+    q: 'What is the delivery time and charges across Pakistan?',
+    a: 'Standard delivery across Pakistan is Rs. 300, and delivery is completely FREE on all orders of Rs. 2,999 or above! Deliveries in Karachi take 2 to 3 working days, and other cities take 3 to 5 working days.'
   },
   {
     q: 'Can I see a design preview before printing?',

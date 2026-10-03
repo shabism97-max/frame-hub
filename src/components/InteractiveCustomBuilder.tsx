@@ -4,6 +4,8 @@ import {
   Upload,
   Sparkles,
   Check,
+  CheckCircle,
+  Loader2,
   Plus,
   Minus,
   X,
@@ -101,11 +103,11 @@ const PRODUCTS: CustomProductOption[] = [
   {
     id: 'string-lights',
     name: 'Photo Clip String Lights',
-    description: 'Cozy warm LED fairy lights with 12 custom printed photos included.',
+    description: 'Cozy warm LED fairy lights with 12 custom 4×4 inches lightweight photo cards included (No MDF board).',
     basePrice: 699,
     image: imgPhotoClipLights,
     isFramed: false,
-    defaultSize: '12 Printed Photos + Lights',
+    defaultSize: '12 Photo Cards (4×4)',
   },
 ];
 
@@ -148,9 +150,12 @@ export const InteractiveCustomBuilder: React.FC<InteractiveCustomBuilderProps> =
   const [customerPhone, setCustomerPhone] = useState<string>('');
   const [customerCity, setCustomerCity] = useState<string>('');
 
-  // Uploaded Photos
+  // Uploaded Photos & Cloud Sync
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
+  const [uploadedCloudUrls, setUploadedCloudUrls] = useState<string[]>([]);
+  const [isUploadingCloud, setIsUploadingCloud] = useState<boolean>(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number>(0);
+  const [showOrderModal, setShowOrderModal] = useState<boolean>(false);
 
   // When product changes, reset default size
   const handleProductSelect = (product: CustomProductOption) => {
@@ -158,29 +163,66 @@ export const InteractiveCustomBuilder: React.FC<InteractiveCustomBuilderProps> =
     setSelectedSize(product.defaultSize);
   };
 
-  // Multiple File Upload Handler
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload individual photo file to cloud storage for WhatsApp direct link
+  const uploadFileToCloud = async (file: File): Promise<string | null> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const json = await res.json();
+      if (json?.data?.url) {
+        // Convert to direct download/preview link: https://tmpfiles.org/dl/...
+        const directUrl = (json.data.url as string).replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+        return directUrl;
+      }
+    } catch (err) {
+      console.error('Cloud photo upload failed:', err);
+    }
+    return null;
+  };
+
+  // Multiple File Upload Handler with instant local preview + background cloud link generation
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileList: File[] = Array.from(files);
-      const newPhotoUrls: string[] = [];
-      fileList.forEach((file: File) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (event.target?.result) {
-            newPhotoUrls.push(event.target.result as string);
-            if (newPhotoUrls.length === fileList.length) {
-              setUploadedPhotos((prev) => [...prev, ...newPhotoUrls]);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+
+      // 1. Read local files immediately so live room mockup displays instantly (0ms delay)
+      const newLocalUrls: string[] = [];
+      for (const file of fileList) {
+        const localDataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (event) => resolve((event.target?.result as string) || '');
+          reader.readAsDataURL(file);
+        });
+        if (localDataUrl) newLocalUrls.push(localDataUrl);
+      }
+      setUploadedPhotos((prev) => [...prev, ...newLocalUrls]);
+
+      // 2. Upload to Cloud in background for WhatsApp direct download links
+      setIsUploadingCloud(true);
+      try {
+        const cloudUploadPromises = fileList.map((file) => uploadFileToCloud(file));
+        const results = await Promise.all(cloudUploadPromises);
+        const successfulUrls = results.filter((url): url is string => Boolean(url));
+        if (successfulUrls.length > 0) {
+          setUploadedCloudUrls((prev) => [...prev, ...successfulUrls]);
+        }
+      } catch (err) {
+        console.error('Error during batch cloud upload:', err);
+      } finally {
+        setIsUploadingCloud(false);
+      }
     }
   };
 
   const removePhoto = (indexToRemove: number) => {
     setUploadedPhotos((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setUploadedCloudUrls((prev) => prev.filter((_, idx) => idx !== indexToRemove));
     if (activePhotoIndex >= indexToRemove && activePhotoIndex > 0) {
       setActivePhotoIndex(activePhotoIndex - 1);
     }
@@ -193,7 +235,10 @@ export const InteractiveCustomBuilder: React.FC<InteractiveCustomBuilderProps> =
     if (foundSize) sizePriceAdder = foundSize.priceAdder;
   }
   const unitPrice = selectedProduct.basePrice + sizePriceAdder;
-  const grandTotal = unitPrice * quantity;
+  const subtotal = unitPrice * quantity;
+  const isFreeDelivery = subtotal >= 2999;
+  const deliveryFee = isFreeDelivery ? 0 : 300;
+  const grandTotal = subtotal + deliveryFee;
 
   // Append instruction tag
   const addInstructionTag = (tag: string) => {
@@ -202,10 +247,20 @@ export const InteractiveCustomBuilder: React.FC<InteractiveCustomBuilderProps> =
     }
   };
 
-  // Generate WhatsApp URL
+  // Generate WhatsApp URL with direct photo links
   const handleWhatsAppOrder = () => {
     const frameColorText = selectedProduct.isFramed ? selectedProduct.isFramed && frameColor ? frameColor : 'Black' : 'Frameless MDF Photo Tile';
     const instructionsText = specialInstructions.trim() || 'None';
+    const deliveryText = isFreeDelivery ? 'FREE (Orders of Rs. 2,999 or above)' : 'Rs. 300';
+
+    let photosSection = '';
+    if (uploadedCloudUrls.length > 0) {
+      photosSection = `\n\n*Customer's Uploaded Photos for Printing (${uploadedCloudUrls.length}):*\n` +
+        uploadedCloudUrls.map((url, i) => `🖼️ Photo ${i + 1}: ${url}`).join('\n') +
+        `\n👉 (Click link to view and download full-resolution image for printing)`;
+    } else if (uploadedPhotos.length > 0) {
+      photosSection = `\n\n*Uploaded Photos:* ${uploadedPhotos.length} photo(s) selected on website. (I will also share as Document in this chat).`;
+    }
 
     const message = `Hi FRAME HUB! I want to place a custom order:
 
@@ -218,14 +273,17 @@ City: ${customerCity || 'Not specified'}
 Product: ${selectedProduct.name}
 Size: ${selectedSize}
 Quantity: ${quantity}
-${selectedProduct.isFramed ? `Frame Color: ${frameColorText}\n` : ''}Special Instructions: ${instructionsText}
+${selectedProduct.isFramed ? `Frame Color: ${frameColorText}\n` : ''}Special Instructions: ${instructionsText}${photosSection}
 
-*Total Price:* Rs. ${grandTotal.toLocaleString()}
+*Subtotal:* Rs. ${subtotal.toLocaleString()}
+*Delivery Charges:* ${deliveryText}
+*Final Total:* Rs. ${grandTotal.toLocaleString()}
 
-I will share my photo attachment(s) here. Please confirm my custom order!`;
+Please confirm my custom order!`;
 
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+    setShowOrderModal(true);
   };
 
   // Determine active preview photo
@@ -386,6 +444,32 @@ I will share my photo attachment(s) here. Please confirm my custom order!`;
                   </div>
                 </div>
               )}
+
+              {/* Cloud Upload Status & Helpful Tips */}
+              {isUploadingCloud && (
+                <div className="flex items-center gap-2.5 text-xs text-[#C8A96A] bg-[#C8A96A]/10 p-3 rounded-2xl border border-[#C8A96A]/30">
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0 text-[#C8A96A]" />
+                  <span>
+                    Photos cloud par upload ho rahi hain... Direct HD download link WhatsApp order mein shamil ho raha hai.
+                  </span>
+                </div>
+              )}
+
+              {uploadedCloudUrls.length > 0 && !isUploadingCloud && (
+                <div className="flex items-center gap-2.5 text-xs text-green-400 bg-green-950/40 p-3 rounded-2xl border border-green-500/30">
+                  <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
+                  <span>
+                    <strong>{uploadedCloudUrls.length} Photo(s) Ready:</strong> High-definition download link WhatsApp message mein attach ho chuka hai!
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-start gap-2.5 text-[11px] text-amber-200/90 bg-[#1F1B14] p-3 rounded-2xl border border-[#C8A96A]/30">
+                <Sparkles className="w-4 h-4 text-[#C8A96A] shrink-0 mt-0.5" />
+                <span>
+                  <strong>Photo Delivery Note:</strong> Order button click kartay hi photos ka link WhatsApp par Frame Hub team ko pohanch jaye ga. Aap WhatsApp chat mein bhi photo as Document send kar saktay hain.
+                </span>
+              </div>
             </div>
 
             {/* STEP 3 – SELECT SIZE */}
@@ -719,13 +803,20 @@ I will share my photo attachment(s) here. Please confirm my custom order!`;
                   </div>
                 )}
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Delivery:</span>
-                  <span className="font-bold text-[#25D366]">Nationwide COD</span>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-gray-400">Subtotal:</span>
+                  <span className="font-semibold text-white">Rs. {subtotal.toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-gray-400">Standard Delivery:</span>
+                  <span className={`font-bold ${isFreeDelivery ? 'text-[#25D366]' : 'text-gray-300'}`}>
+                    {isFreeDelivery ? 'FREE (Above Rs. 2,999)' : 'Rs. 300'}
+                  </span>
                 </div>
 
                 <div className="pt-3 border-t border-gray-800 flex justify-between items-baseline">
-                  <span className="font-bold text-white text-sm">Grand Total:</span>
+                  <span className="font-bold text-white text-sm">Final Total:</span>
                   <span className="font-serif text-2xl font-bold text-[#C8A96A]">
                     Rs. {grandTotal.toLocaleString()}
                   </span>
@@ -736,10 +827,24 @@ I will share my photo attachment(s) here. Please confirm my custom order!`;
               <button
                 type="button"
                 onClick={handleWhatsAppOrder}
-                className="w-full bg-[#25D366] hover:bg-[#1faa51] text-white font-bold text-xs uppercase tracking-[0.15em] py-4 rounded-2xl shadow-2xl flex items-center justify-center gap-2.5 transition-transform hover:scale-[1.02] border border-[#25D366]"
+                disabled={isUploadingCloud}
+                className={`w-full text-white font-bold text-xs uppercase tracking-[0.15em] py-4 rounded-2xl shadow-2xl flex items-center justify-center gap-2.5 transition-all border ${
+                  isUploadingCloud
+                    ? 'bg-gray-800 border-gray-700 cursor-not-allowed opacity-80'
+                    : 'bg-[#25D366] hover:bg-[#1faa51] border-[#25D366] hover:scale-[1.02] cursor-pointer'
+                }`}
               >
-                <MessageCircle className="w-5 h-5 fill-current" />
-                <span>ORDER ON WHATSAPP</span>
+                {isUploadingCloud ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>UPLOADING PHOTOS ({uploadedPhotos.length})...</span>
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="w-5 h-5 fill-current" />
+                    <span>ORDER ON WHATSAPP {uploadedCloudUrls.length > 0 ? '(WITH PHOTO LINK)' : ''}</span>
+                  </>
+                )}
               </button>
 
               <div className="flex items-center justify-center gap-4 text-[10px] text-gray-400 pt-1">
@@ -757,6 +862,78 @@ I will share my photo attachment(s) here. Please confirm my custom order!`;
         </div>
 
       </div>
+
+      {/* WhatsApp Order Sent Confirmation Modal */}
+      {showOrderModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#181818] border border-[#C8A96A]/50 rounded-3xl max-w-md w-full p-6 text-white space-y-4 shadow-2xl relative">
+            <button
+              onClick={() => setShowOrderModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white p-1 rounded-full cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-14 h-14 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto border border-green-500/30">
+              <Check className="w-8 h-8 stroke-[3]" />
+            </div>
+
+            <div className="text-center space-y-1.5">
+              <h3 className="font-serif text-xl font-bold text-white">Order Sent to WhatsApp!</h3>
+              <p className="text-xs text-gray-300">
+                Aapke order ki details aur <strong className="text-[#C8A96A]">photo ke direct HD download links</strong> WhatsApp message mein shamil kar diye gaye hain.
+              </p>
+            </div>
+
+            {uploadedCloudUrls.length > 0 && (
+              <div className="bg-black/60 p-3.5 rounded-xl border border-gray-800 space-y-2 text-xs">
+                <div className="flex items-center justify-between text-[#C8A96A] font-bold">
+                  <span>Uploaded Photo Links ({uploadedCloudUrls.length}):</span>
+                  <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Ready</span>
+                </div>
+                <div className="space-y-1 max-h-24 overflow-y-auto text-[11px] text-gray-400">
+                  {uploadedCloudUrls.map((url, i) => (
+                    <div key={i} className="flex items-center gap-1.5 truncate">
+                      <span className="text-gray-300">Photo {i + 1}:</span>
+                      <a href={url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline truncate">
+                        {url}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="bg-[#1F1B14] p-3 rounded-xl border border-[#C8A96A]/30 text-xs text-gray-300 space-y-1">
+              <div className="flex items-center gap-1.5 text-[#C8A96A] font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Next Step on WhatsApp:</span>
+              </div>
+              <p className="text-[11px] text-gray-300 leading-relaxed">
+                Jaise hi WhatsApp open ho, "Send" button press karein taake Frame Hub ko aapka order aur photos foran mil sakein.
+              </p>
+            </div>
+
+            <div className="pt-2 flex gap-2">
+              <button
+                onClick={() => {
+                  handleWhatsAppOrder();
+                }}
+                className="flex-1 py-3 bg-[#25D366] hover:bg-[#1faa51] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 fill-current" />
+                <span>Re-open WhatsApp Chat</span>
+              </button>
+              <button
+                onClick={() => setShowOrderModal(false)}
+                className="px-4 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold rounded-xl text-xs cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
